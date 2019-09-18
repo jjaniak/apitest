@@ -1,5 +1,9 @@
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.griddynamics.request.LoginRequest;
+import com.griddynamics.request.RequestUser;
+import com.griddynamics.response.LoginResponse;
 import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.junit.Assert;
@@ -18,37 +22,37 @@ public class ApiTest {
 
 
     @BeforeClass
-    static public void getToken() {
+    public static void getToken() throws Exception {
 
-        TOKEN = given()
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        RequestUser user = new RequestUser("pupurupu@pupurupu.com","pupurupu");
+
+        LoginRequest requestBody = new LoginRequest(user);
+
+        LoginResponse response = mapper.readValue(given()
                 .contentType("application/json")
-                .body("{\n" +
-                        "  \"user\":{\n" +
-                        "    \"email\": \"pupurupu@pupurupu.com\",\n" +
-                        "    \"password\": \"pupurupu\"\n" +
-                        "  }\n" +
-                        "}")
+                .body(requestBody)
                 .when()
-                        .post(baseURI + "/users/login")
-                .then()
-                        .extract().path("user.token");
+                .post(baseURI + "/users/login").body().prettyPrint(), LoginResponse.class);
 
-        System.out.println("The token is: " + TOKEN);
+        TOKEN = response.user.token;
+        System.out.println("The token is: " + response.user.token);
     }
 
     @Test
     public void logUser() {
 //       Authenticates   "POST /api/users/login"   and checks Status Code is successful
 
+        RequestUser user = new RequestUser("pupurupu@pupurupu.com","pupurupu");
+
+        LoginRequest requestBody = new LoginRequest(user);
+
         Response response =
                 given()
                        .contentType("application/json")
-                        .body("{\n" +
-                        "  \"user\":{\n" +
-                        "    \"email\": \"pupurupu@pupurupu.com\",\n" +
-                        "    \"password\": \"pupurupu\"\n" +
-                        "  }\n" +
-                        "}")
+                        .body(requestBody)
                 .when()
                         .post(baseURI + "/users/login");
 
@@ -61,16 +65,16 @@ public class ApiTest {
     public void getCurrentUser() {
 //        GET Current User and checks ID, username and email address are correct
 
-        RestAssured.given().
-                        contentType("application/json").
-                        header("Authorization", "Token " + TOKEN).
-                    when().
-                        get(baseURI+ "/user").
-                    then().
-                        assertThat().statusCode(200).
-                        and().body("user.id", equalTo(66692)).
-                        and().body("user.email", equalTo("pupurupu@pupurupu.com")).
-                        and().body("user.username", equalTo("pupurupu")).
-                        and().log().all();
+        given()
+                .contentType("application/json")
+                .header("Authorization", "Token " + TOKEN)
+        .when()
+                .get(baseURI+ "/user")
+        .then()
+                .assertThat().statusCode(200)
+                .body("user.id", equalTo(66692))
+                .body("user.email", equalTo("pupurupu@pupurupu.com"))
+                .body("user.username", equalTo("pupurupu"))
+                .log().all();
     }
 }
