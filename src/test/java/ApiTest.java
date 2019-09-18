@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class ApiTest {
 
-    private static String baseURI = "https://conduit.productionready.io/api";
+    private static final String BASE_URI = "https://conduit.productionready.io/api";
     private static String TOKEN;
 
 
@@ -31,11 +31,13 @@ public class ApiTest {
 
         LoginRequest requestBody = new LoginRequest(user);
 
-        LoginResponse response = mapper.readValue(given()
-                .contentType("application/json")
-                .body(requestBody)
+        LoginResponse response = mapper.readValue(
+                given()
+                    .contentType("application/json")
+                    .body(requestBody)
                 .when()
-                .post(baseURI + "/users/login").body().prettyPrint(), LoginResponse.class);
+                    .post(BASE_URI + "/users/login")
+                    .body().prettyPrint(), LoginResponse.class);
 
         TOKEN = response.user.token;
         System.out.println("The token is: " + response.user.token);
@@ -52,9 +54,9 @@ public class ApiTest {
         Response response =
                 given()
                        .contentType("application/json")
-                        .body(requestBody)
+                       .body(requestBody)
                 .when()
-                        .post(baseURI + "/users/login");
+                        .post(BASE_URI + "/users/login");
 
         response.then().assertThat().statusCode(200);
         response.prettyPrint();
@@ -69,7 +71,7 @@ public class ApiTest {
                 .contentType("application/json")
                 .header("Authorization", "Token " + TOKEN)
         .when()
-                .get(baseURI+ "/user")
+                .get(BASE_URI + "/user")
         .then()
                 .assertThat().statusCode(200)
                 .body("user.id", equalTo(66692))
