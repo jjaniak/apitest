@@ -1,7 +1,11 @@
 package com.griddynamics.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.sql.Timestamp;
 import java.util.List;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 
 public class Article {
     public String slug;
