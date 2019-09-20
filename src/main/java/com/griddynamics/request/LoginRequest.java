@@ -1,9 +1,9 @@
 package com.griddynamics.request;
 
 public class LoginRequest {
-    public RequestUser user;
+    public User user;
 
-    public LoginRequest(RequestUser user) {
+    public LoginRequest(User user) {
         this.user = user;
     }
 }
