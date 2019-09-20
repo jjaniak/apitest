@@ -17,7 +17,7 @@ public class ApiTest {
 
 
     @BeforeClass
-    public static void getToken() throws Exception {
+    public static void getToken() {
 
         User user = new User(email, password);
 
