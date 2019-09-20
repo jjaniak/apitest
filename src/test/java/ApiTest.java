@@ -1,14 +1,8 @@
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.griddynamics.request.LoginRequest;
-import com.griddynamics.request.RequestUser;
+import com.griddynamics.request.User;
 import com.griddynamics.response.LoginResponse;
-import io.restassured.RestAssured;
 import io.restassured.response.Response;
-import io.restassured.specification.RequestSpecification;
-import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static io.restassured.RestAssured.given;
@@ -16,47 +10,46 @@ import static org.hamcrest.Matchers.equalTo;
 
 
 public class ApiTest {
-
+    private static String email = "pupurupu@pupurupu.com";
+    private static String password = "pupurupu";
     private static final String BASE_URI = "https://conduit.productionready.io/api";
-    private static String TOKEN;
+    private static String token;
 
 
     @BeforeClass
     public static void getToken() throws Exception {
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-        RequestUser user = new RequestUser("pupurupu@pupurupu.com","pupurupu");
+        User user = new User(email, password);
 
         LoginRequest requestBody = new LoginRequest(user);
 
-        LoginResponse response = mapper.readValue(
+        LoginResponse response =
                 given()
                     .contentType("application/json")
+                    .baseUri(BASE_URI)
                     .body(requestBody)
                 .when()
-                    .post(BASE_URI + "/users/login")
-                    .body().prettyPrint(), LoginResponse.class);
+                    .post("/users/login").as(LoginResponse.class);
 
-        TOKEN = response.user.token;
-        System.out.println("The token is: " + response.user.token);
+        token = response.user.token;
+        System.out.println("The token is: " + token);
     }
 
     @Test
     public void logUser() {
-//       Authenticates   "POST /api/users/login"   and checks Status Code is successful
+//       Authenticates   "POST /api/users/login" and checks Status Code is successful
 
-        RequestUser user = new RequestUser("pupurupu@pupurupu.com","pupurupu");
+        User user = new User("pupurupu@pupurupu.com","pupurupu");
 
         LoginRequest requestBody = new LoginRequest(user);
 
         Response response =
                 given()
-                       .contentType("application/json")
-                       .body(requestBody)
+                        .contentType("application/json")
+                        .baseUri(BASE_URI)
+                        .body(requestBody)
                 .when()
-                        .post(BASE_URI + "/users/login");
+                        .post("/users/login");
 
         response.then().assertThat().statusCode(200);
         response.prettyPrint();
@@ -69,9 +62,10 @@ public class ApiTest {
 
         given()
                 .contentType("application/json")
-                .header("Authorization", "Token " + TOKEN)
+                .baseUri(BASE_URI)
+                .header("Authorization", "Token " + token)
         .when()
-                .get(BASE_URI + "/user")
+                .get("/user")
         .then()
                 .assertThat().statusCode(200)
                 .body("user.id", equalTo(66692))
