@@ -8,7 +8,7 @@ public class Article {
     public String title;
     public String description;
     public String body;
-    private List<String> tagList = new ArrayList<>();
+    public List<String> tagList = new ArrayList<>();
 
     public Article(String title, String description, String body) {
         this.title = title;
