@@ -53,13 +53,11 @@ public class PostArticleTest {
                 given()
                         .contentType("application/json")
                         .baseUri(BASE_URI)
-                        .header("Authorization", "Token" + token)
+                        .header("Authorization", "Token " + token)
                         .body(requestBody)
                         .when()
                         .post("/articles").as(ArticleResponse.class);
 
-        // TODO: 2019-09-20 problem with parsing
-        //  Cannot parse object because no supported Content-Type was specified in response. Content-Type was 'text/html; charset=utf-8'.
 
         assertThat(articleResponse.article.title, equalTo(title));
         assertThat(articleResponse.article.description, equalTo(description));
