@@ -4,16 +4,20 @@ import com.griddynamics.response.LoginResponse;
 import io.restassured.response.Response;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.results.ResultMatchers;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 
-public class ApiTest {
+public class LoginTest {
     private static String email = "pupurupu@pupurupu.com";
     private static String password = "pupurupu";
     private static final String BASE_URI = "https://conduit.productionready.io/api";
     private static String token;
+    private String username = "pupurupu";
+    private String id = "66692";
 
 
     @BeforeClass
@@ -39,38 +43,24 @@ public class ApiTest {
     public void logUser() {
 //       Authenticates   "POST /api/users/login" and checks Status Code is successful
 
-        User user = new User("pupurupu@pupurupu.com","pupurupu");
+        User user = new User(email,password);
 
         LoginRequest requestBody = new LoginRequest(user);
 
-        Response response =
+        LoginResponse loginResponse =
                 given()
                         .contentType("application/json")
                         .baseUri(BASE_URI)
                         .body(requestBody)
                 .when()
-                        .post("/users/login");
+                        .post("/users/login").as(LoginResponse.class);
 
-        response.then().assertThat().statusCode(200);
-        response.prettyPrint();
-    }
+        assertThat(loginResponse.user.username, equalTo(username));
+        assertThat(loginResponse.user.email, equalTo(email));
+        assertThat(loginResponse.user.id, equalTo(id));
 
 
-    @Test
-    public void getCurrentUser() {
-//        GET Current User and checks ID, username and email address are correct
-
-        given()
-                .contentType("application/json")
-                .baseUri(BASE_URI)
-                .header("Authorization", "Token " + token)
-        .when()
-                .get("/user")
-        .then()
-                .assertThat().statusCode(200)
-                .body("user.id", equalTo(66692))
-                .body("user.email", equalTo("pupurupu@pupurupu.com"))
-                .body("user.username", equalTo("pupurupu"))
-                .log().all();
+        //todo    public ResultMatcher isOk()
+        // Assert the response status code is HttpStatus.OK (200).
     }
 }
