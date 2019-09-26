@@ -26,8 +26,8 @@ public class RegistrationTest {
 
 
     @DisplayName("Successful new user registration")
-    @Description("It sends a POST request with valid data and checks if the response status code is OK " +
-            "and email and username in the response are the same as sent in the request AND login")
+    @Description("It sends a POST request with valid data and checks if the response status code is OK, " +
+            "if email and username in the response are the same as sent in the request AND it makes a successful login")
     @Test
     public void registerNewUser(){
 
