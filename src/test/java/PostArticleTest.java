@@ -4,8 +4,8 @@ import com.griddynamics.request.NewArticleRequest;
 import com.griddynamics.request.User;
 import com.griddynamics.response.ArticleResponse;
 import com.griddynamics.response.LoginResponse;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -18,7 +18,7 @@ public class PostArticleTest {
     private static String token;
     private static final String BASE_URI = "https://conduit.productionready.io/api";
 
-    @BeforeClass
+    @BeforeAll
     public static void getToken() {
         User user = new User(email, password);
 

@@ -1,8 +1,9 @@
 import com.griddynamics.request.LoginRequest;
 import com.griddynamics.request.User;
 import com.griddynamics.response.LoginResponse;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -18,7 +19,7 @@ public class GetCurrentUserTTest {
     private String id = "66692";
 
 
-    @BeforeClass
+    @BeforeEach
     public static void getToken() {
 
         User user = new User(email, password);

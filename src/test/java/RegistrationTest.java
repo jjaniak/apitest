@@ -3,9 +3,9 @@ import com.griddynamics.request.RegistrationRequest;
 import com.griddynamics.response.SuccessfulRegistrationResponse;
 import com.griddynamics.response.UnsuccessfulRegistrationResponse;
 import io.qameta.allure.Description;
-import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
-import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -25,10 +25,10 @@ public class RegistrationTest {
     private String tooShortUsernameError = "is too short (minimum is 1 character)";
 
 
-    @Test
     @DisplayName("Successful new user registration")
     @Description("It sends a POST request with valid data and checks if the response status code is OK " +
             "and email and username in the response are the same as sent in the request AND login")
+    @Test
     public void registerNewUser(){
 
         String validUsername = "scoiattolo16";
@@ -57,9 +57,9 @@ public class RegistrationTest {
 
     }
 
-    @Test
     @DisplayName("New user registration: all fields are empty")
     @Description("It sends a POST request with empty strings and checks if the response status code is 422 and there are expected error messages")
+    @Test
     public void registerNewUserWithEmptyFields(){
 
         String emptyString = "";
