@@ -1,7 +1,9 @@
 import com.griddynamics.request.LoginRequest;
 import com.griddynamics.request.User;
 import com.griddynamics.response.LoginResponse;
+import io.qameta.allure.Description;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 
@@ -38,9 +40,11 @@ public class GetCurrentUserTest {
         System.out.println("The token is: " + token);
     }
 
+
+    @DisplayName("Get current user")
+    @Description("It gets current user and checks if ID, username and email address are correct")
     @Test
     public void getCurrentUser() {
-//        GET Current User and checks ID, username and email address are correct
 
         given()
                 .contentType("application/json")
