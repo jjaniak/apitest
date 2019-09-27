@@ -1,6 +1,7 @@
 import com.griddynamics.request.LoginRequest;
 import com.griddynamics.request.User;
 import com.griddynamics.response.LoginResponse;
+import io.qameta.allure.Attachment;
 import io.restassured.response.Response;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -47,20 +48,41 @@ public class LoginTest {
 
         LoginRequest requestBody = new LoginRequest(user);
 
-        LoginResponse loginResponse =
+        Response restAssuredResponse =
                 given()
                         .contentType("application/json")
                         .baseUri(BASE_URI)
                         .body(requestBody)
                 .when()
-                        .post("/users/login").as(LoginResponse.class);
+                        .post("/users/login");
+
+        LoginResponse loginResponse = restAssuredResponse.as(LoginResponse.class);
 
         assertThat(loginResponse.user.username, equalTo(username));
         assertThat(loginResponse.user.email, equalTo(email));
         assertThat(loginResponse.user.id, equalTo(id));
 
+        restAssuredResponse.then().assertThat().statusCode(200);
 
-        //todo    public ResultMatcher isOk()
-        // Assert the response status code is HttpStatus.OK (200).
+        attachJsonRequest(requestBody);
+        attachJsonResponse(restAssuredResponse);
+
+    }
+
+    @Attachment(value = "My response", type = "application/json")
+    public String attachJsonResponse(Response response) {
+        return response.prettyPrint();
+
+        // what about the headers?  I just get the body here
+        // type of response and requests?  RestAssuredResponse?  how to keep it generic?
+
+        // how to add attachments in AfterEach?    Or just on test failure?   Or add deleting attachments on passed tests?
+    }
+
+    @Attachment(value = "My request", type = "application/json")
+    public String attachJsonRequest(LoginRequest request) {
+        return request.toString();
+
+//      I only get object reference (body, headers?)  use RespectSpecification?
     }
 }
