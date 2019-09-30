@@ -1,3 +1,4 @@
+import base.BaseTest;
 import com.griddynamics.request.NewUser;
 import com.griddynamics.request.RegistrationRequest;
 import com.griddynamics.response.SuccessfulRegistrationResponse;
@@ -9,12 +10,11 @@ import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
 
 
-public class RegistrationTest {
-
-    private static final String BASE_URI = "https://conduit.productionready.io/api";
+public class RegistrationTest extends BaseTest {
 
     private String blankError = "can't be blank";
     private String invalidError = "is invalid";

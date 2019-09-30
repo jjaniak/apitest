@@ -1,44 +1,15 @@
-import com.griddynamics.request.LoginRequest;
-import com.griddynamics.request.User;
-import com.griddynamics.response.LoginResponse;
+import base.AuthenticatedUserTest;
 import io.qameta.allure.Description;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-public class GetCurrentUserTest {
-
-    private static String email = "pupurupu@pupurupu.com";
-    private static String password = "pupurupu";
-    private static final String BASE_URI = "https://conduit.productionready.io/api";
-    private static String token;
+public class GetCurrentUserTest extends AuthenticatedUserTest {
+    private String email = "pupurupu@pupurupu.com";
     private String username = "pupurupu";
     private String id = "66692";
-
-
-    @BeforeAll
-    public static void getToken() {
-
-        User user = new User(email, password);
-
-        LoginRequest requestBody = new LoginRequest(user);
-
-        LoginResponse response =
-                given()
-                        .contentType("application/json")
-                        .baseUri(BASE_URI)
-                        .body(requestBody)
-                        .when()
-                        .post("/users/login").as(LoginResponse.class);
-
-        token = response.user.token;
-        System.out.println("The token is: " + token);
-    }
 
 
     @DisplayName("Get current user")
@@ -54,10 +25,9 @@ public class GetCurrentUserTest {
                 .get("/user")
                 .then()
                 .assertThat().statusCode(200)
-                .body("user.id", equalTo(66692))
+                .body("user.id", equalTo(id))
                 .body("user.email", equalTo(email))
-                .body("user.username", equalTo(username))
-                .log().all();
+                .body("user.username", equalTo(username));
 
 //        todo change response type in this test
     }
