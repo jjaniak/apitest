@@ -1,10 +1,10 @@
 package com.griddynamics.request;
 
-public class User {
+public class RequestUser {
     public String email;
     public String password;
 
-    public User(String email, String password) {
+    public RequestUser(String email, String password) {
         this.email = email;
         this.password = password;
     }

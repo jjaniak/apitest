@@ -3,7 +3,7 @@ package com.griddynamics.response;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class User {
+public class ResponseUser {
     public String id;
     public String email;
     public String username;
