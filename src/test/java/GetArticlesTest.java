@@ -1,20 +1,22 @@
+import base.BaseTest;
 import com.griddynamics.response.MultipleArticleResponse;
+import io.qameta.allure.Description;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
-public class GetArticlesTest {
-    private static final String BASE_URI = "https://conduit.productionready.io/api";
+public class GetArticlesTest extends BaseTest {
     String author = "pupurupu";
     String tag = "japan";
 
 
+    @DisplayName("Get articles by author")
+    @Description("It gets a list of articles by given author and checks that returned articles author is the one that was requested ")
     @Test
     public void getArticlesByAuthor() {
-
-//        GET /api/articles  gets a list of articles by given author and checks that returned articles author is the one that was requested
 
         MultipleArticleResponse response =
                 given()
@@ -30,10 +32,11 @@ public class GetArticlesTest {
         System.out.println("The number of articles written by user '" + author + "': " + response.articlesCount);
     }
 
+
+    @DisplayName("Get articles by tag")
+    @Description("It gets a list of 10 articles by given tag and checks that tag in returned articles is the one that was requested")
     @Test
     public void getArticlesByTag() {
-//        GET /api/articles  gets a list of articles by given tag and checks that tag in returned articles is the one that was requested
-//        + max number of articles is 10
 
         MultipleArticleResponse response =
                 given()
