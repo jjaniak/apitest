@@ -1,5 +1,5 @@
 package com.griddynamics.response;
 
 public class LoginResponse {
-    public User user;
+    public ResponseUser user;
 }
