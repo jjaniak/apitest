@@ -1,6 +1,9 @@
 import base.BaseTest;
+import com.griddynamics.request.LoginRequest;
 import com.griddynamics.request.NewUser;
 import com.griddynamics.request.RegistrationRequest;
+import com.griddynamics.request.RequestUser;
+import com.griddynamics.response.LoginResponse;
 import com.griddynamics.response.SuccessfulRegistrationResponse;
 import com.griddynamics.response.UnsuccessfulRegistrationResponse;
 import io.qameta.allure.Description;
@@ -29,15 +32,14 @@ public class RegistrationTest extends BaseTest {
     @Description("It sends a POST request with valid data and checks if the response status code is OK, " +
             "if email and username in the response are the same as sent in the request AND it makes a successful login")
     @Test
-    public void registerNewUser(){
+    public void registerNewUserAndLogin(){
 
-        String validUsername = "scoiattolo16";
-        String validEmailAddress = "scoiattolo16@super.com";
-        String validPassword = "scoiattolo16";
+        String validUsername = "scoiattolo";
+        String validEmailAddress = "scoiattolo@super.com";
+        String validPassword = "scoiattolo";
 
 
         NewUser newUser = new NewUser(validUsername, validEmailAddress, validPassword);
-
         RegistrationRequest requestBody = new RegistrationRequest(newUser);
 
         Response restAssuredResponse =
@@ -51,16 +53,34 @@ public class RegistrationTest extends BaseTest {
 
         assertThat(response.user.username, equalTo(validUsername));
         assertThat(response.user.email, equalTo(validEmailAddress));
-
         restAssuredResponse.then().assertThat().statusCode(200);
-//       todo   add LOGIN check
 
+
+        // After a successful registration checks if user is able to login:
+
+        RequestUser user = new RequestUser(validEmailAddress, validPassword);
+        LoginRequest requestBody2 = new LoginRequest(user);
+
+        Response restAssuredResponse2 =
+                given()
+                        .contentType("application/json")
+                        .baseUri(BASE_URI)
+                        .body(requestBody2)
+                        .when()
+                        .post("/users/login");
+
+        LoginResponse loginResponse = restAssuredResponse2.as(LoginResponse.class);
+
+        assertThat(loginResponse.user.username, equalTo(validUsername));
+        assertThat(loginResponse.user.email, equalTo(validEmailAddress));
+        restAssuredResponse.then().assertThat().statusCode(200);
     }
 
-    @DisplayName("New user registration: all fields are empty")
-    @Description("It sends a POST request with empty strings and checks if the response status code is 422 and there are expected error messages")
+    @DisplayName("Unsuccessful new user registration: all fields are empty")
+    @Description("It sends a POST request with empty strings " +
+            "and checks if the response status code is 422 and there are expected error messages")
     @Test
-    public void registerNewUserWithEmptyFields(){
+    public void registerWithEmptyFields(){
 
         String emptyString = "";
 
@@ -76,13 +96,134 @@ public class RegistrationTest extends BaseTest {
                 .when()
                         .post("/users");
 
-
         UnsuccessfulRegistrationResponse response = restAssuredResponse.as(UnsuccessfulRegistrationResponse.class);
 
         assertThat(response.errors.username, hasItems(blankError, tooShortUsernameError));
         assertThat(response.errors.email, hasItems(blankError));
         assertThat(response.errors.password, hasItems(blankError));
+        restAssuredResponse.then().assertThat().statusCode(422);
+    }
 
+    @DisplayName("Unsuccessful new user registration: blank username and password")
+    @Description("It sends a POST request with username and password containing only spaces " +
+            "and checks if the response status code is 422 and there are expected error messages")
+    @Test
+    public void registerWithBlankSpaces(){
+
+        String blankUsername = " ";
+        String emailAddress = "scoiattolo@super.com";
+        String blankPassword = "        ";
+
+        NewUser newUser = new NewUser(blankUsername, emailAddress, blankPassword);
+
+        RegistrationRequest requestBody = new RegistrationRequest(newUser);
+
+        Response restAssuredResponse =
+                given()
+                        .contentType("application/json")
+                        .baseUri(BASE_URI)
+                        .body(requestBody)
+                        .when()
+                        .post("/users");
+
+
+        UnsuccessfulRegistrationResponse response = restAssuredResponse.as(UnsuccessfulRegistrationResponse.class);
+
+        assertThat(response.errors.username, hasItems(blankError));
+        assertThat(response.errors.password, hasItems(blankError));
+        restAssuredResponse.then().assertThat().statusCode(422);
+    }
+
+
+//    Send a request with a valid email address + username and password contain only white spaces (username → 1 white space,  password →  8 white spaces)
+//→ check the error for username and password is: “can’t be blank”
+
+    @DisplayName("Unsuccessful new user registration: username and email address are already taken")
+    @Description("It sends a POST request with valid password and already taken both username and email address. " +
+            "It checks if the error message for user and email address is “has already been taken” + status code is 422")
+    @Test
+    public void registerWithUsernameAndEmailInUse(){
+
+        String takenUsername = "scoiattolo";
+        String takenEmailAddress = "scoiattolo@super.com";
+        String password = "123456789";
+
+        NewUser newUser = new NewUser(takenUsername, takenEmailAddress, password);
+        RegistrationRequest requestBody = new RegistrationRequest(newUser);
+
+        Response restAssuredResponse =
+                given()
+                        .contentType("application/json")
+                        .baseUri(BASE_URI)
+                        .body(requestBody)
+                        .when()
+                        .post("/users");
+
+
+        UnsuccessfulRegistrationResponse response = restAssuredResponse.as(UnsuccessfulRegistrationResponse.class);
+
+        assertThat(response.errors.username, hasItems(alreadyTakenError));
+        assertThat(response.errors.email, hasItems(alreadyTakenError));
+        restAssuredResponse.then().assertThat().statusCode(422);
+    }
+
+    @DisplayName("Unsuccessful new user registration: invalid email address + too short password")
+    @Description("It sends a POST request with invalid email address and too short password (username is valid). " +
+            "Expected invalid email address and too short password error messages, and the status code is 422")
+    @Test
+    public void registerWithInvalidEmail() {
+
+        // todo  add junit-dataprovider more invalid email address examples
+        //  (xxx@xx, x.com, just spaces, A@b@c@domain.com,  @    ,   just spaces)
+
+        String username = "cocodrillo";
+        String invalidEmailAddress = "super.com";
+        String tooShortPassword = "1234567";
+
+        NewUser newUser = new NewUser(username, invalidEmailAddress, tooShortPassword);
+        RegistrationRequest requestBody = new RegistrationRequest(newUser);
+
+        Response restAssuredResponse =
+                given()
+                        .contentType("application/json")
+                        .baseUri(BASE_URI)
+                        .body(requestBody)
+                        .when()
+                        .post("/users");
+
+        UnsuccessfulRegistrationResponse response = restAssuredResponse.as(UnsuccessfulRegistrationResponse.class);
+
+        assertThat(response.errors.email, hasItems(invalidError));
+        assertThat(response.errors.password, hasItems(tooShortPasswordError));
+        restAssuredResponse.then().assertThat().statusCode(422);
+    }
+
+    @DisplayName("Unsuccessful new user registration: too long username and password")
+    @Description("It sends a POST request with too long username (21 chars) and password (73 chars) (email address is valid). " +
+            "Expected 'too long' error messages  and the status code is 422")
+    @Test
+    public void registerWithTooLongUsernameAndPassword() {
+
+        String tooLongUsername = "Ihave21Characters!@#$";
+        String emailAddress = "scoiattolo@super.com";
+        String tooLongPassword = "Ihave73CharactersIhave73CharactersIhave73CharactersIhave73Characters!@#$%";
+
+        NewUser newUser = new NewUser(tooLongUsername, emailAddress, tooLongPassword);
+
+        RegistrationRequest requestBody = new RegistrationRequest(newUser);
+
+        Response restAssuredResponse =
+                given()
+                        .contentType("application/json")
+                        .baseUri(BASE_URI)
+                        .body(requestBody)
+                        .when()
+                        .post("/users");
+
+        UnsuccessfulRegistrationResponse response = restAssuredResponse.as(UnsuccessfulRegistrationResponse.class);
+
+        assertThat(response.errors.username, hasItems(tooLongUsernameError));
+        assertThat(response.errors.password, hasItems(tooLongPasswordError));
         restAssuredResponse.then().assertThat().statusCode(422);
     }
 }
