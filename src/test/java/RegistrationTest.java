@@ -6,6 +6,8 @@ import com.griddynamics.request.RequestUser;
 import com.griddynamics.response.LoginResponse;
 import com.griddynamics.response.SuccessfulRegistrationResponse;
 import com.griddynamics.response.UnsuccessfulRegistrationResponse;
+import com.tngtech.junit.dataprovider.DataProvider;
+import com.tngtech.junit.dataprovider.UseDataProvider;
 import io.qameta.allure.Description;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.DisplayName;
@@ -135,9 +137,6 @@ public class RegistrationTest extends BaseTest {
     }
 
 
-//    Send a request with a valid email address + username and password contain only white spaces (username → 1 white space,  password →  8 white spaces)
-//→ check the error for username and password is: “can’t be blank”
-
     @DisplayName("Unsuccessful new user registration: username and email address are already taken")
     @Description("It sends a POST request with valid password and already taken both username and email address. " +
             "It checks if the error message for user and email address is “has already been taken” + status code is 422")
@@ -167,20 +166,29 @@ public class RegistrationTest extends BaseTest {
         restAssuredResponse.then().assertThat().statusCode(422);
     }
 
+
+    @DataProvider
+    public static String[] dataProviderInvalidEmail() {
+        return new String[] {
+                "xxx@xxx",
+                "xxx.com",
+                "        ",
+                "A@b@c@domain.com",
+                "     @    .   "
+        };
+    }
+
     @DisplayName("Unsuccessful new user registration: invalid email address + too short password")
     @Description("It sends a POST request with invalid email address and too short password (username is valid). " +
             "Expected invalid email address and too short password error messages, and the status code is 422")
     @Test
-    public void registerWithInvalidEmail() {
-
-        // todo  add junit-dataprovider more invalid email address examples
-        //  (xxx@xx, x.com, just spaces, A@b@c@domain.com,  @    ,   just spaces)
+    @UseDataProvider("dataProviderInvalidEmail")
+    public void registerWithInvalidEmail(String invalidEmail) {
 
         String username = "cocodrillo";
-        String invalidEmailAddress = "super.com";
         String tooShortPassword = "1234567";
 
-        NewUser newUser = new NewUser(username, invalidEmailAddress, tooShortPassword);
+        NewUser newUser = new NewUser(username, invalidEmail, tooShortPassword);
         RegistrationRequest requestBody = new RegistrationRequest(newUser);
 
         Response restAssuredResponse =
@@ -197,6 +205,7 @@ public class RegistrationTest extends BaseTest {
         assertThat(response.errors.password, hasItems(tooShortPasswordError));
         restAssuredResponse.then().assertThat().statusCode(422);
     }
+
 
     @DisplayName("Unsuccessful new user registration: too long username and password")
     @Description("It sends a POST request with too long username (21 chars) and password (73 chars) (email address is valid). " +
