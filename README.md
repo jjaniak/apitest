@@ -5,5 +5,4 @@ This is a learning project aiming to create backend tests in Java (using JUnit a
 
 It uses backend at  <https://conduit.productionready.io/api>
 
-The documentation for it can be found [here]
-(https://github.com/gothinkster/realworld/tree/master/api "RealWorld API documentation")
+The documentation for it can be found [here](https://github.com/gothinkster/realworld/tree/master/api "RealWorld API documentation")
